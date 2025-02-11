@@ -1,0 +1,15 @@
+/* if large screen center all content */
+@media (min-width: 1024px) {
+  .App {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50vh;
+    width: 100%;
+  }
+  .Card {
+    width: 100%;
+    max-width: 1200px; /* Adjust the max-width as needed */
+    flex-grow: 1;
+  }
+}

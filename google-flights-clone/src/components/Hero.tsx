@@ -4,7 +4,9 @@ import Filters from "./Filters";
 const Hero = () => {
   return (
     <div>
-      <h1 style={{ textAlign: "center" }}>Flights</h1>
+      <h2 style={{ textAlign: "center", fontSize: 48, fontWeight: "normal" }}>
+        Flights
+      </h2>
       <Filters />
     </div>
   );
