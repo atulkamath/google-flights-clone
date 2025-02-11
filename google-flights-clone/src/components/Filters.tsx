@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 import "../App.css";
 import PassengerSelector from "./PassengerSelector";
 import { ApiResponse, ResultsType, SourceItem } from "./types";
-import FlightResultsTable from "./FlightResultstable";
+import FlightResultsTable from "./FlightResultsTable";
 
 enum Tab {
   RoundTrip = "round-trip",
