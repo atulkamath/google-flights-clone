@@ -36,7 +36,7 @@ const FlightResultsTable: React.FC<{
         </TableHead>
         <TableBody>
           {data.data.itineraries
-            .filter((row, index) => index < 10)
+            .filter((_, index) => index < 10)
             .sort((a, b) => a.price.raw - b.price.raw)
             .map((row) => (
               <TableRow key={row.id}>

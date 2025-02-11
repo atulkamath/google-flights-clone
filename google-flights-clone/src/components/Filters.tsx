@@ -231,7 +231,7 @@ const Filters = () => {
           <Autocomplete
             loading={sourceLoading}
             onInputChange={handleSourceSearch}
-            onChange={(event, value: SourceItem | null) => {
+            onChange={(_, value: SourceItem | null) => {
               if (value) {
                 setSource(value.presentation.suggestionTitle);
                 setSourceId({ skyId: value.skyId, entityId: value.entityId });
@@ -255,7 +255,7 @@ const Filters = () => {
             renderInput={(params) => <TextField {...params} label="From" />}
           />
           <Autocomplete
-            onChange={(event, value: SourceItem | null) => {
+            onChange={(_, value: SourceItem | null) => {
               if (value) {
                 setDestination(value.presentation.suggestionTitle);
                 setDestinationId({
