@@ -50,7 +50,7 @@ const Filters = () => {
   const [destinationList, setDestinationList] = useState<ApiResponse>();
   const [selectedTab, setSelectedTab] = useState(Tab.RoundTrip);
   const [tripType, setTripType] = useState(TripType.Economy);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [departureDate, setDepartureDate] = useState<Dayjs | null>();
   const [returnDate, setReturnDate] = useState<Dayjs | null>();
   const [selectedPassengers, setSelectedPassengers] = useState({
@@ -65,8 +65,7 @@ const Filters = () => {
       tripType === TripType.Economy ? TripType.Business : TripType.Economy
     );
   };
-  // const handlePassengersChange = () => {};
-  const handleToggle = (event) => {
+  const handleToggle = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(anchorEl ? null : event.currentTarget);
   };
 
@@ -170,7 +169,6 @@ const Filters = () => {
         }
       );
       const result: ResultsType = await response.json();
-      console.log(result, "final");
       setResults(result);
     } catch (error) {
       console.error(error);
