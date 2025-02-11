@@ -15,6 +15,8 @@ import React, { useEffect, useState } from "react";
 import "../App.css";
 import PassengerSelector from "./PassengerSelector";
 import { ApiResponse, ResultsType, SourceItem } from "./types";
+import FlightResultsTable from "./FlightResultstable";
+
 enum Tab {
   RoundTrip = "round-trip",
   OneWay = "one-way",
@@ -38,6 +40,7 @@ const Filters = () => {
     skyId: "",
     entityId: "",
   });
+  const [loadingFlights, setLoadingFlights] = useState(false);
   const [destination, setDestination] = useState("");
   const [sourceQuery, setSourceQuery] = useState("");
   const [destinationQuery, setDestinationQuery] = useState("");
@@ -139,6 +142,7 @@ const Filters = () => {
 
   const searchFlights = async () => {
     try {
+      setLoadingFlights(true);
       const returnDateString =
         selectedTab === Tab.OneWay
           ? ""
@@ -170,140 +174,163 @@ const Filters = () => {
       setResults(result);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoadingFlights(false);
     }
   };
 
   return (
-    <Card sx={{ padding: 2, minWidth: { lg: 1200 } }}>
-      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-        <CustomSelect size="small" value={selectedTab} onChange={handleChange}>
-          <MenuItem value={Tab.RoundTrip}>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <ConnectingAirportsOutlined style={{ marginRight: 4 }} />
-              Round Trip
-            </div>
-          </MenuItem>
-          <MenuItem value={Tab.OneWay}>
-            <ListItemIcon>
-              <ArrowRightAlt />
-            </ListItemIcon>
-            One Way
-          </MenuItem>
-        </CustomSelect>
+    <>
+      <Card sx={{ padding: 2, minWidth: { lg: 1200 } }}>
+        <div
+          style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}
+        >
+          <CustomSelect
+            size="small"
+            value={selectedTab}
+            onChange={handleChange}
+          >
+            <MenuItem value={Tab.RoundTrip}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <ConnectingAirportsOutlined style={{ marginRight: 4 }} />
+                Round Trip
+              </div>
+            </MenuItem>
+            <MenuItem value={Tab.OneWay}>
+              <ListItemIcon>
+                <ArrowRightAlt />
+              </ListItemIcon>
+              One Way
+            </MenuItem>
+          </CustomSelect>
 
-        <PassengerSelector
-          anchorEl={anchorEl}
-          handleClose={handleClose}
-          handleToggle={handleToggle}
-          selectedPassengers={selectedPassengers}
-          setSelectedPassengers={setSelectedPassengers}
-        />
+          <PassengerSelector
+            anchorEl={anchorEl}
+            handleClose={handleClose}
+            handleToggle={handleToggle}
+            selectedPassengers={selectedPassengers}
+            setSelectedPassengers={setSelectedPassengers}
+          />
 
-        <CustomSelect size="small" value={tripType} onChange={handleTripChange}>
-          <MenuItem value={TripType.Economy}>Economy</MenuItem>
-          <MenuItem value={TripType.Business}>Business</MenuItem>
-        </CustomSelect>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "16px",
-          marginTop: 10,
-        }}
-      >
-        <Autocomplete
-          loading={sourceLoading}
-          onInputChange={handleSourceSearch}
-          onChange={(event, value: SourceItem | null) => {
-            if (value) {
-              setSource(value.presentation.suggestionTitle);
-              setSourceId({ skyId: value.skyId, entityId: value.entityId });
+          <CustomSelect
+            size="small"
+            value={tripType}
+            onChange={handleTripChange}
+          >
+            <MenuItem value={TripType.Economy}>Economy</MenuItem>
+            <MenuItem value={TripType.Business}>Business</MenuItem>
+          </CustomSelect>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "16px",
+            marginTop: 10,
+          }}
+        >
+          <Autocomplete
+            loading={sourceLoading}
+            onInputChange={handleSourceSearch}
+            onChange={(event, value: SourceItem | null) => {
+              if (value) {
+                setSource(value.presentation.suggestionTitle);
+                setSourceId({ skyId: value.skyId, entityId: value.entityId });
+              }
+            }}
+            disablePortal
+            getOptionLabel={(option: SourceItem) =>
+              option.presentation.suggestionTitle
             }
-          }}
-          disablePortal
-          getOptionLabel={(option: SourceItem) =>
-            option.presentation.suggestionTitle
-          }
-          // isOptionEqualToValue={(option, value) => option.skyId === value.skyId}
-          options={sourceList?.data || []}
-          sx={{
-            width: {
-              xs: "calc(50% - 8px)",
-              lg:
-                selectedTab === Tab.RoundTrip
-                  ? "calc(25% - 12px)"
-                  : "calc(33.33% - 12px)",
-            },
-          }}
-          renderInput={(params) => <TextField {...params} label="From" />}
-        />
-        <Autocomplete
-          onChange={(event, value: SourceItem | null) => {
-            if (value) {
-              setDestination(value.presentation.suggestionTitle);
-              setDestinationId({
-                skyId: value.skyId,
-                entityId: value.entityId,
-              });
+            // isOptionEqualToValue={(option, value) => option.skyId === value.skyId}
+            options={sourceList?.data || []}
+            sx={{
+              width: {
+                xs: "calc(50% - 8px)",
+                lg:
+                  selectedTab === Tab.RoundTrip
+                    ? "calc(25% - 12px)"
+                    : "calc(33.33% - 12px)",
+              },
+            }}
+            renderInput={(params) => <TextField {...params} label="From" />}
+          />
+          <Autocomplete
+            onChange={(event, value: SourceItem | null) => {
+              if (value) {
+                setDestination(value.presentation.suggestionTitle);
+                setDestinationId({
+                  skyId: value.skyId,
+                  entityId: value.entityId,
+                });
+              }
+            }}
+            getOptionLabel={(option: SourceItem) =>
+              option.presentation.suggestionTitle
             }
-          }}
-          getOptionLabel={(option: SourceItem) =>
-            option.presentation.suggestionTitle
-          }
-          loading={destinationLoading}
-          onInputChange={handleDestinationSearch}
-          disablePortal
-          options={destinationList?.data || []}
-          sx={{
-            width: {
-              xs: "calc(50% - 8px)",
-              lg:
-                selectedTab === Tab.RoundTrip
-                  ? "calc(25% - 12px)"
-                  : "calc(33.33% - 12px)",
-            },
-          }}
-          renderInput={(params) => <TextField {...params} label="Where To?" />}
-        />
+            loading={destinationLoading}
+            onInputChange={handleDestinationSearch}
+            disablePortal
+            options={destinationList?.data || []}
+            sx={{
+              width: {
+                xs: "calc(50% - 8px)",
+                lg:
+                  selectedTab === Tab.RoundTrip
+                    ? "calc(25% - 12px)"
+                    : "calc(33.33% - 12px)",
+              },
+            }}
+            renderInput={(params) => (
+              <TextField {...params} label="Where To?" />
+            )}
+          />
 
-        {/* save value yyyy-mm-dd */}
-        <DatePicker
-          value={departureDate}
-          sx={{
-            width: {
-              xs: "calc(50% - 8px)",
-              lg:
-                selectedTab === Tab.RoundTrip
-                  ? "calc(25% - 12px)"
-                  : "calc(33.33% - 12px)",
-            },
-          }}
-          format="DD-MM-YYYY"
-          onChange={(value) => {
-            setDepartureDate(value);
-          }}
-          label="Departure"
-        />
-        {selectedTab === Tab.RoundTrip && (
+          {/* save value yyyy-mm-dd */}
           <DatePicker
-            sx={{ width: { xs: "calc(50% - 8px)", lg: "calc(25% - 12px)" } }}
-            onChange={(value) => {
-              setReturnDate(value);
+            value={departureDate}
+            sx={{
+              width: {
+                xs: "calc(50% - 8px)",
+                lg:
+                  selectedTab === Tab.RoundTrip
+                    ? "calc(25% - 12px)"
+                    : "calc(33.33% - 12px)",
+              },
             }}
             format="DD-MM-YYYY"
-            value={selectedTab === Tab.RoundTrip ? returnDate : null}
-            label="Return"
+            onChange={(value) => {
+              setDepartureDate(value);
+            }}
+            label="Departure"
           />
-        )}
-      </div>
-      <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
-        <Button onClick={searchFlights} variant="outlined">
-          Explore
-        </Button>
-      </div>
-    </Card>
+          {selectedTab === Tab.RoundTrip && (
+            <DatePicker
+              sx={{ width: { xs: "calc(50% - 8px)", lg: "calc(25% - 12px)" } }}
+              onChange={(value) => {
+                setReturnDate(value);
+              }}
+              format="DD-MM-YYYY"
+              value={selectedTab === Tab.RoundTrip ? returnDate : null}
+              label="Return"
+            />
+          )}
+        </div>
+        <div
+          style={{ display: "flex", justifyContent: "center", marginTop: 20 }}
+        >
+          <Button
+            loading={loadingFlights}
+            onClick={searchFlights}
+            variant="outlined"
+          >
+            Explore
+          </Button>
+        </div>
+      </Card>
+      {results && <FlightResultsTable data={results} />}
+    </>
   );
 };
 
